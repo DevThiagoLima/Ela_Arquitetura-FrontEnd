@@ -22,8 +22,14 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font",
-      "expo-splash-screen"
-    ]
+  [
+    "expo-splash-screen",
+    {
+      "backgroundColor": "#DFC6AF",
+      "image": "./assets/logo.png",
+      "imageWidth": 200
+    }
+  ]
+]
   }
 }

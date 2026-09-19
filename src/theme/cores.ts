@@ -1,7 +1,8 @@
 export const colors = {
-  background: '#DDC2AC',
-  card: '#213930',
-  primary: '#D65649',
+  background: '#DFC6AF',
+  onBackground: '#1F362D', // texto sobre o fundo bege
+  card: '#1F362D',
+  primary: '#D9574B',
   onPrimary: '#FFFFFF',
   onCard: '#FFFFFF',
   inputBackground: '#F1F1F1',
