@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo } from 'react';
-import type { ComponentProps, Ref } from 'react';
+import type { ComponentProps, ReactNode, Ref } from 'react';
 import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
 
 import { colors } from '../theme/cores';
@@ -9,10 +9,12 @@ import { Scale, useResponsive } from '../utils/responsividade';
 
 type Props = TextInputProps & {
   icon: ComponentProps<typeof Ionicons>['name'];
+  /** Elemento exibido no canto direito do campo (ex.: botão de mostrar senha). */
+  rightElement?: ReactNode;
   ref?: Ref<TextInput>;
 };
 
-export function IconTextInput({ icon, style, ref, ...inputProps }: Props) {
+export function CampoTextoComIcone({ icon, rightElement, style, ref, ...inputProps }: Props) {
   const { s } = useResponsive();
   const styles = useMemo(() => createStyles(s), [s]);
 
@@ -26,6 +28,7 @@ export function IconTextInput({ icon, style, ref, ...inputProps }: Props) {
         maxFontSizeMultiplier={1.2}
         {...inputProps}
       />
+      {rightElement ? <View style={styles.rightElement}>{rightElement}</View> : null}
     </View>
   );
 }
@@ -56,5 +59,8 @@ const createStyles = (s: Scale) =>
       fontFamily: fonts.italic,
       fontSize: s(16),
       color: colors.inputText,
+    },
+    rightElement: {
+      marginLeft: s(8),
     },
   });

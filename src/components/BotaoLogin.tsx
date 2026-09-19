@@ -20,7 +20,7 @@ type Props = {
   style?: StyleProp<ViewStyle>;
 };
 
-export function PrimaryButton({
+export function BotaoLogin({
   title,
   onPress,
   loading = false,

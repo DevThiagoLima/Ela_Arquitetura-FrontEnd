@@ -12,8 +12,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getLoginErrorMessage, login } from '../api/servicoAutenticacao';
-import { IconTextInput } from '../components/CampoTextoComIcone';
-import { PrimaryButton } from '../components/BotaoLogin';
+import { BotaoLogin } from '../components/BotaoLogin';
+import { CampoSenha } from '../components/CampoSenha';
+import { CampoTextoComIcone } from '../components/CampoTextoComIcone';
 import { colors } from '../theme/cores';
 import { fonts } from '../theme/tipografia';
 import type { LoginResponse } from '../types/autenticacao';
@@ -26,7 +27,7 @@ type Props = {
   onLoginSuccess?: (data: LoginResponse) => void;
 };
 
-export default function LoginScreen({ onLoginSuccess }: Props) {
+export default function TelaLogin({ onLoginSuccess }: Props) {
   const { s } = useResponsive();
   const styles = useMemo(() => createStyles(s), [s]);
 
@@ -79,7 +80,7 @@ export default function LoginScreen({ onLoginSuccess }: Props) {
             <Text style={styles.label} maxFontSizeMultiplier={1.2}>
               Usuário
             </Text>
-            <IconTextInput
+            <CampoTextoComIcone
               icon="person-outline"
               placeholder="Digite seu e-mail ..."
               value={email}
@@ -96,13 +97,11 @@ export default function LoginScreen({ onLoginSuccess }: Props) {
             <Text style={[styles.label, styles.labelSpaced]} maxFontSizeMultiplier={1.2}>
               Senha
             </Text>
-            <IconTextInput
+            <CampoSenha
               ref={passwordRef}
-              icon="lock-closed-outline"
               placeholder="Digite sua senha ..."
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="password"
@@ -117,7 +116,7 @@ export default function LoginScreen({ onLoginSuccess }: Props) {
               </Text>
             ) : null}
 
-            <PrimaryButton
+            <BotaoLogin
               title="Entrar"
               onPress={handleLogin}
               loading={loading}
