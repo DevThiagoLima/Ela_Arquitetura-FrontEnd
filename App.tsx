@@ -12,7 +12,7 @@ import type { LoginResponse } from './src/types/autenticacao';
 SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({ duration: 300, fade: true });
 
-/** Tempo mínimo em que a tela "Carregando ..." fica visível. Use 0 para desativar. */
+
 const TEMPO_MINIMO_CARREGANDO_MS = 3000;
 
 export default function App() {
@@ -24,8 +24,6 @@ export default function App() {
 
     SplashScreen.hideAsync();
 
-    // TODO: quando houver token salvo (expo-secure-store), troque este timer
-    // pela verificação real e só então encerre o "carregando".
     const timer = setTimeout(() => setCarregando(false), TEMPO_MINIMO_CARREGANDO_MS);
     return () => clearTimeout(timer);
   }, [fontsLoaded]);
@@ -34,7 +32,6 @@ export default function App() {
 
   const handleLoginSuccess = (data: LoginResponse) => {
     setAuthToken(data.token);
-    // TODO: guardar o token (expo-secure-store) e navegar para a próxima tela.
   };
 
   return (

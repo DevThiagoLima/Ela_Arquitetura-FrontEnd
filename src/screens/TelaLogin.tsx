@@ -134,10 +134,14 @@ const createStyles = (s: Scale) =>
     flex: {
       flex: 1,
     },
+
+
     safeArea: {
       flex: 1,
       backgroundColor: colors.background,
     },
+
+
     scrollContent: {
       flexGrow: 1,
       justifyContent: 'center',
@@ -145,6 +149,8 @@ const createStyles = (s: Scale) =>
       paddingHorizontal: s(17),
       paddingVertical: s(24),
     },
+
+
     card: {
       width: '100%',
       maxWidth: s(368),
@@ -159,12 +165,16 @@ const createStyles = (s: Scale) =>
       shadowRadius: s(6),
       elevation: 8,
     },
+
+
     logo: {
       alignSelf: 'center',
       width: s(94),
       height: s(57),
       marginBottom: s(16),
     },
+
+
     label: {
       marginLeft: s(19),
       marginBottom: s(10),
@@ -173,9 +183,13 @@ const createStyles = (s: Scale) =>
       lineHeight: s(30),
       color: colors.onCard,
     },
+
+
     labelSpaced: {
       marginTop: s(32),
     },
+
+
     error: {
       marginTop: s(14),
       paddingHorizontal: s(10),
@@ -184,6 +198,8 @@ const createStyles = (s: Scale) =>
       fontSize: s(14),
       color: colors.error,
     },
+
+    
     button: {
       marginTop: s(32),
     },
