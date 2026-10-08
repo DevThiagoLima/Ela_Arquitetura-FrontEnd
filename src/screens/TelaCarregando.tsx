@@ -51,12 +51,14 @@ const createStyles = (s: Scale) =>
       justifyContent: 'center',
       backgroundColor: colors.background,
     },
+
+
     logo: {
       width: LARGURA_LOGO,
       height: ALTURA_LOGO,
     },
-    // Posicionado de forma absoluta para o logo ficar exatamente no centro da tela
-    // (igual à splash nativa) e o texto aparecer logo abaixo dele.
+
+
     rodape: {
       position: 'absolute',
       left: 0,
@@ -65,16 +67,22 @@ const createStyles = (s: Scale) =>
       marginTop: ALTURA_LOGO / 1 + s(28),
       alignItems: 'center',
     },
+
+
     linha: {
       flexDirection: 'row',
       alignItems: 'flex-end',
     },
+
+
     texto: {
       fontFamily: fonts.italic,
       fontSize: s(18),
       lineHeight: s(24),
       color: colors.onBackground,
     },
+
+    
     pontos: {
       marginLeft: s(6),
       marginBottom: s(8),

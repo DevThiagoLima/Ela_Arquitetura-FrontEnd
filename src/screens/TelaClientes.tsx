@@ -10,6 +10,7 @@ import { CampoTextoComIcone } from '../components/CampoTextoComIcone';
 import { CardCliente } from '../components/CardCliente';
 import { colors } from '../theme/cores';
 import { Scale, useResponsive } from '../utils/responsividade';
+import type { LoginResponse } from '../types/autenticacao';
 
 type ClienteListagem = {
   id: string;
@@ -25,7 +26,11 @@ const CLIENTES_MOCK: ClienteListagem[] = [
   { id: '4', nome: 'Renata Alves', statusProjeto: 'Concluído', funcionariaResponsavel: 'Bruna Melo' },
 ];
 
-export default function TelaClientes() {
+type Props = {
+  usuario?: LoginResponse;
+};
+
+export default function TelaClientes({ usuario }: Props) {
   const { s } = useResponsive();
   const styles = useMemo(() => createStyles(s), [s]);
   const [busca, setBusca] = useState('');

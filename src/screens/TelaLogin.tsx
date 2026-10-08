@@ -38,25 +38,25 @@ export default function TelaLogin({ onLoginSuccess }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async () => {
-    if (loading) return;
+  if (loading) return;
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail || !password) {
-      setError('Preencha o e-mail e a senha.');
-      return;
-    }
+  const trimmedEmail = email.trim();
+  if (!trimmedEmail || !password) {
+    setError('Preencha o e-mail e a senha.');
+    return;
+  }
 
-    setError(null);
-    setLoading(true);
-    try {
-      const data = await login({ email: trimmedEmail, password });
-      onLoginSuccess?.(data);
-    } catch (e) {
-      setError(getLoginErrorMessage(e));
-    } finally {
-      setLoading(false);
-    }
-  };
+  setError(null);
+  setLoading(true);
+  try {
+    const data = await login({ email: trimmedEmail, senha: password }); // ← alterada
+    onLoginSuccess?.(data);
+  } catch (e) {
+    setError(getLoginErrorMessage(e));
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -134,10 +134,14 @@ const createStyles = (s: Scale) =>
     flex: {
       flex: 1,
     },
+
+
     safeArea: {
       flex: 1,
       backgroundColor: colors.background,
     },
+
+
     scrollContent: {
       flexGrow: 1,
       justifyContent: 'center',
@@ -145,6 +149,8 @@ const createStyles = (s: Scale) =>
       paddingHorizontal: s(17),
       paddingVertical: s(24),
     },
+
+
     card: {
       width: '100%',
       maxWidth: s(368),
@@ -159,12 +165,16 @@ const createStyles = (s: Scale) =>
       shadowRadius: s(6),
       elevation: 8,
     },
+
+
     logo: {
       alignSelf: 'center',
       width: s(94),
       height: s(57),
       marginBottom: s(16),
     },
+
+
     label: {
       marginLeft: s(19),
       marginBottom: s(10),
@@ -173,9 +183,13 @@ const createStyles = (s: Scale) =>
       lineHeight: s(30),
       color: colors.onCard,
     },
+
+
     labelSpaced: {
       marginTop: s(32),
     },
+
+
     error: {
       marginTop: s(14),
       paddingHorizontal: s(10),
@@ -184,6 +198,8 @@ const createStyles = (s: Scale) =>
       fontSize: s(14),
       color: colors.error,
     },
+
+    
     button: {
       marginTop: s(32),
     },
