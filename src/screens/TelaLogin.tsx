@@ -38,25 +38,25 @@ export default function TelaLogin({ onLoginSuccess }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async () => {
-    if (loading) return;
+  if (loading) return;
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail || !password) {
-      setError('Preencha o e-mail e a senha.');
-      return;
-    }
+  const trimmedEmail = email.trim();
+  if (!trimmedEmail || !password) {
+    setError('Preencha o e-mail e a senha.');
+    return;
+  }
 
-    setError(null);
-    setLoading(true);
-    try {
-      const data = await login({ email: trimmedEmail, password });
-      onLoginSuccess?.(data);
-    } catch (e) {
-      setError(getLoginErrorMessage(e));
-    } finally {
-      setLoading(false);
-    }
-  };
+  setError(null);
+  setLoading(true);
+  try {
+    const data = await login({ email: trimmedEmail, senha: password }); // ← alterada
+    onLoginSuccess?.(data);
+  } catch (e) {
+    setError(getLoginErrorMessage(e));
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <SafeAreaView style={styles.safeArea}>
