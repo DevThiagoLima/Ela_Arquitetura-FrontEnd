@@ -49,11 +49,16 @@ export default function TelaClientes({ usuario }: Props) {
     return () => clearTimeout(timer);
   }, [busca]);
 
-  // Tocar na aba Clientes (mesmo já estando nela) recarrega a lista.
+  // Tocar na aba Clientes (mesmo já estando nela) volta para a lista completa.
+  // Se havia busca, limpar o campo já dispara o recarregamento pelo useEffect acima.
   const handleTrocarAba = (aba: Aba) => {
     setAbaAtiva(aba);
     if (aba === 'Clientes') {
-      carregarClientes(busca.trim());
+      if (busca) {
+        setBusca('');
+      } else {
+        carregarClientes('');
+      }
     }
   };
 
