@@ -28,11 +28,11 @@ export default function TelaClientes({ usuario }: Props) {
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  const carregarClientes = async () => {
+  const carregarClientes = async (termo: string) => {
     setErro(null);
     setCarregando(true);
     try {
-      const data = await listarClientes();
+      const data = await listarClientes(termo);
       setClientes(data);
     } catch (e) {
       setErro(getClientesErrorMessage(e));
@@ -41,16 +41,19 @@ export default function TelaClientes({ usuario }: Props) {
     }
   };
 
-  // Busca a lista assim que a tela é aberta.
+  // Carrega ao abrir a tela e refaz a busca enquanto o usuário digita,
+  // esperando ele parar por um instante para não chamar a API a cada letra.
   useEffect(() => {
-    carregarClientes();
-  }, []);
+    const termo = busca.trim();
+    const timer = setTimeout(() => carregarClientes(termo), termo ? 400 : 0);
+    return () => clearTimeout(timer);
+  }, [busca]);
 
   // Tocar na aba Clientes (mesmo já estando nela) recarrega a lista.
   const handleTrocarAba = (aba: Aba) => {
     setAbaAtiva(aba);
     if (aba === 'Clientes') {
-      carregarClientes();
+      carregarClientes(busca.trim());
     }
   };
 
@@ -60,7 +63,7 @@ export default function TelaClientes({ usuario }: Props) {
     }
     return (
       <Text style={[styles.aviso, erro ? styles.avisoErro : null]} maxFontSizeMultiplier={1.2}>
-        {erro ?? 'Nenhum cliente cadastrado.'}
+        {erro ?? (busca.trim() ? 'Nenhum cliente encontrado.' : 'Nenhum cliente cadastrado.')}
       </Text>
     );
   };

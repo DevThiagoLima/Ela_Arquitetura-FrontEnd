@@ -5,8 +5,11 @@ import { api } from './cliente';
 
 const CLIENTES_ENDPOINT = '/api/clientes';
 
-export async function listarClientes(): Promise<Cliente[]> {
-  const { data } = await api.get<Cliente[]>(CLIENTES_ENDPOINT);
+/** Sem termo, traz todos; com termo, a API filtra por nome, e-mail ou telefone. */
+export async function listarClientes(busca?: string): Promise<Cliente[]> {
+  const { data } = await api.get<Cliente[]>(CLIENTES_ENDPOINT, {
+    params: busca ? { busca } : undefined,
+  });
   return data;
 }
 
