@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { getClientesErrorMessage, listarClientes } from '../api/servicoClientes';
 import { BarraNavegacaoInferior } from '../components/BarraNavegacaoInferior';
 import type { Aba } from '../components/BarraNavegacaoInferior';
 import { BotaoFlutuante } from '../components/BotaoFlutuante';
@@ -9,22 +10,10 @@ import { CabecalhoTela } from '../components/CabecalhoTela';
 import { CampoTextoComIcone } from '../components/CampoTextoComIcone';
 import { CardCliente } from '../components/CardCliente';
 import { colors } from '../theme/cores';
+import { fonts } from '../theme/tipografia';
 import { Scale, useResponsive } from '../utils/responsividade';
 import type { LoginResponse } from '../types/autenticacao';
-
-type ClienteListagem = {
-  id: string;
-  nome: string;
-  statusProjeto: string;
-  funcionariaResponsavel: string;
-};
-
-const CLIENTES_MOCK: ClienteListagem[] = [
-  { id: '1', nome: 'Maria Fernandes', statusProjeto: 'Em andamento', funcionariaResponsavel: 'Ana Souza' },
-  { id: '2', nome: 'João Pedro Lima', statusProjeto: 'Estudos Preliminares', funcionariaResponsavel: 'Carla Dias' },
-  { id: '3', nome: 'Empresa ABC Ltda', statusProjeto: 'Projeto Executivo', funcionariaResponsavel: 'Ana Souza' },
-  { id: '4', nome: 'Renata Alves', statusProjeto: 'Concluído', funcionariaResponsavel: 'Bruna Melo' },
-];
+import type { Cliente } from '../types/cliente';
 
 type Props = {
   usuario?: LoginResponse;
@@ -35,6 +24,46 @@ export default function TelaClientes({ usuario }: Props) {
   const styles = useMemo(() => createStyles(s), [s]);
   const [busca, setBusca] = useState('');
   const [abaAtiva, setAbaAtiva] = useState<Aba>('Clientes');
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const carregarClientes = async () => {
+    setErro(null);
+    setCarregando(true);
+    try {
+      const data = await listarClientes();
+      setClientes(data);
+    } catch (e) {
+      setErro(getClientesErrorMessage(e));
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  // Busca a lista assim que a tela é aberta.
+  useEffect(() => {
+    carregarClientes();
+  }, []);
+
+  // Tocar na aba Clientes (mesmo já estando nela) recarrega a lista.
+  const handleTrocarAba = (aba: Aba) => {
+    setAbaAtiva(aba);
+    if (aba === 'Clientes') {
+      carregarClientes();
+    }
+  };
+
+  const renderListaVazia = () => {
+    if (carregando) {
+      return <ActivityIndicator size="large" color={colors.card} style={styles.aviso} />;
+    }
+    return (
+      <Text style={[styles.aviso, erro ? styles.avisoErro : null]} maxFontSizeMultiplier={1.2}>
+        {erro ?? 'Nenhum cliente cadastrado.'}
+      </Text>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -52,15 +81,12 @@ export default function TelaClientes({ usuario }: Props) {
         </View>
 
         <FlatList
-          data={CLIENTES_MOCK}
+          data={carregando ? [] : clientes}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <CardCliente
-              nome={item.nome}
-              statusProjeto={item.statusProjeto}
-              funcionariaResponsavel={item.funcionariaResponsavel}
-            />
+            <CardCliente nome={item.nome} telefone={item.telefone} email={item.email} />
           )}
+          ListEmptyComponent={renderListaVazia}
           contentContainerStyle={styles.lista}
           showsVerticalScrollIndicator={false}
         />
@@ -68,7 +94,7 @@ export default function TelaClientes({ usuario }: Props) {
         <BotaoFlutuante onPress={() => {}} />
       </View>
 
-      <BarraNavegacaoInferior abaAtiva={abaAtiva} onTrocarAba={setAbaAtiva} />
+      <BarraNavegacaoInferior abaAtiva={abaAtiva} onTrocarAba={handleTrocarAba} />
     </SafeAreaView>
   );
 }
@@ -89,5 +115,15 @@ const createStyles = (s: Scale) =>
     },
     lista: {
       paddingBottom: s(80),
+    },
+    aviso: {
+      marginTop: s(32),
+      textAlign: 'center',
+      fontFamily: fonts.italic,
+      fontSize: s(15),
+      color: colors.onBackground,
+    },
+    avisoErro: {
+      color: colors.primary,
     },
   });
