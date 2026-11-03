@@ -17,7 +17,14 @@ function Abas() {
       tabBar={({ state, navigation }) => (
         <BarraNavegacaoInferior
           abaAtiva={state.routeNames[state.index] as Aba}
-          onTrocarAba={(aba) => navigation.navigate(aba)}
+          onTrocarAba={(aba) => {
+            const rota = state.routes.find((r) => r.name === aba);
+            if (!rota) return; // aba ainda não registrada (ex.: Concluídos)
+
+            // Avisa a tela do toque, como a barra padrão faz (a TelaClientes usa para recarregar).
+            navigation.emit({ type: 'tabPress', target: rota.key, canPreventDefault: true });
+            navigation.navigate(aba);
+          }}
         />
       )}
     >
