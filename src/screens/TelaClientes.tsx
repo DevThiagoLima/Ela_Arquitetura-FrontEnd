@@ -3,7 +3,7 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { CompositeNavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getClientesErrorMessage, listarClientes } from '../api/servicoClientes';
@@ -16,8 +16,6 @@ import { colors } from '../theme/cores';
 import { fonts } from '../theme/tipografia';
 import { Scale, useResponsive } from '../utils/responsividade';
 import type { Cliente } from '../types/cliente';
-
-const iconeClientes = require('../../assets/icones/aba-clientes.png');
 
 // Aba dentro do stack: escuta o toque na aba e também abre telas do stack (CadastroCliente).
 type Navegacao = CompositeNavigationProp<
@@ -95,7 +93,7 @@ export default function TelaClientes() {
               style={({ pressed }) => [styles.botaoCadastrar, pressed && styles.pressed]}
             >
               <Ionicons name="add" size={s(22)} color={colors.onCard} />
-              <Image source={iconeClientes} style={styles.iconeCadastrar} resizeMode="contain" />
+              <Ionicons name="person-outline" size={s(26)} color={colors.onCard} />
             </Pressable>
           }
         />
@@ -150,10 +148,6 @@ const createStyles = (s: Scale, safeTop: number) =>
     },
     pressed: {
       opacity: 0.7,
-    },
-    iconeCadastrar: {
-      width: s(34),
-      height: s(34),
     },
     buscaContainer: {
       marginBottom: s(16),
