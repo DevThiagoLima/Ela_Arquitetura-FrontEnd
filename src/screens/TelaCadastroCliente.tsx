@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useMemo, useState } from 'react';
@@ -35,6 +36,7 @@ export default function TelaCadastroCliente() {
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
   const [salvando, setSalvando] = useState(false);
+  const [sucesso, setSucesso] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
   // Ao completar os 8 dígitos do CEP, preenche o endereço pelo ViaCEP.
@@ -61,7 +63,7 @@ export default function TelaCadastroCliente() {
   };
 
   const handleCadastrar = async () => {
-    if (salvando) return;
+    if (salvando || sucesso) return;
 
     if (!nome.trim() || !telefone.trim()) {
       setErro('Preencha o nome e o telefone.');
@@ -79,8 +81,9 @@ export default function TelaCadastroCliente() {
         cpf: textoOuNulo(cpf),
         enderecoObra: textoOuNulo(enderecoObra),
       });
-      // A lista de clientes recarrega sozinha ao voltar a ter foco.
-      navigation.goBack();
+      // Mostra a confirmação por 1 segundo e volta; a lista recarrega sozinha ao ter foco.
+      setSucesso(true);
+      setTimeout(() => navigation.goBack(), 1000);
     } catch (e) {
       setErro(getCadastroErrorMessage(e));
     } finally {
@@ -213,6 +216,17 @@ export default function TelaCadastroCliente() {
         abaAtiva="Clientes"
         onTrocarAba={(aba) => navigation.navigate('Abas', { screen: aba })}
       />
+
+      {sucesso ? (
+        <View style={styles.sobreposicao} accessibilityLiveRegion="polite">
+          <View style={styles.avisoSucesso}>
+            <Ionicons name="checkmark-circle-outline" size={s(48)} color={colors.onCard} />
+            <Text style={styles.textoSucesso} maxFontSizeMultiplier={1.2}>
+              Cliente cadastrado com sucesso!
+            </Text>
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -265,5 +279,28 @@ const createStyles = (s: Scale, safeTop: number) =>
     botao: {
       marginTop: s(20),
       width: s(190),
+    },
+    sobreposicao: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    },
+    avisoSucesso: {
+      alignItems: 'center',
+      paddingHorizontal: s(24),
+      paddingVertical: s(20),
+      backgroundColor: colors.card,
+      borderRadius: s(18),
+    },
+    textoSucesso: {
+      marginTop: s(8),
+      fontFamily: fonts.italic,
+      fontSize: s(18),
+      color: colors.onCard,
     },
   });
