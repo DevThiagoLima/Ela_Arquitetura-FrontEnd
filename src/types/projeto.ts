@@ -29,6 +29,13 @@ export interface ChecklistItem {
   dataConclusao: string | null;
 }
 
+// Resposta de PATCH /api/checklist/{id}/concluir e /reabrir.
+export interface ChecklistItemAlterado {
+  id: string;
+  concluido: boolean;
+  etapaPodeAvancar: boolean;
+}
+
 export interface SubEtapa {
   id: string;
   nome: string;
