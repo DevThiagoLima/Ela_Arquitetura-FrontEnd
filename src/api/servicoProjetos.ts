@@ -36,3 +36,9 @@ export async function avancarEtapa(projetoId: string): Promise<Projeto> {
 export async function adicionarItem(projetoId: string, descricao: string): Promise<void> {
   await api.post(`${PROJETOS_ENDPOINT}/${projetoId}/checklist`, { descricao, subEtapaId: null });
 }
+
+/** Remove item avulso; a resposta avisa se, sem ele, a etapa atual já pode avançar. */
+export async function removerItem(itemId: string): Promise<ChecklistItemAlterado> {
+  const { data } = await api.delete<ChecklistItemAlterado>(`${CHECKLIST_ENDPOINT}/${itemId}`);
+  return data;
+}
