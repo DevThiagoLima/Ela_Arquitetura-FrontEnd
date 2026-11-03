@@ -10,4 +10,5 @@ export type RootStackParamList = {
   Abas: NavigatorScreenParams<AbasParamList>;
   CadastroFuncionario: undefined;
   CadastroCliente: undefined;
+  Checklist: { clienteId: string };
 };
