@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { Aba, BarraNavegacaoInferior } from '../components/BarraNavegacaoInferior';
+import TelaCadastroCliente from '../screens/TelaCadastroCliente';
 import TelaClientes from '../screens/TelaClientes';
 // import TelaConcluidos from '../screens/TelaConcluidos';
 import { TelaFuncionarios } from '../screens/TelaFuncionarios';
@@ -41,7 +42,7 @@ export function Navegacao() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Abas" component={Abas} />
       {/* <Stack.Screen name="CadastroFuncionario" component={TelaCadastroFuncionario} /> */}
-      {/* <Stack.Screen name="CadastroCliente" component={TelaCadastroCliente} /> */}
+      <Stack.Screen name="CadastroCliente" component={TelaCadastroCliente} />
     </Stack.Navigator>
   );
 }
