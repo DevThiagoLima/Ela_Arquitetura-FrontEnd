@@ -1,16 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BarraNavegacaoInferior } from '../components/BarraNavegacaoInferior';
-import type { Aba } from '../components/BarraNavegacaoInferior';
 import { BotaoFlutuante } from '../components/BotaoFlutuante';
 import { CabecalhoTela } from '../components/CabecalhoTela';
 import { CampoTextoComIcone } from '../components/CampoTextoComIcone';
 import { CardCliente } from '../components/CardCliente';
 import { colors } from '../theme/cores';
 import { Scale, useResponsive } from '../utils/responsividade';
-import type { LoginResponse } from '../types/autenticacao';
 
 type ClienteListagem = {
   id: string;
@@ -26,21 +23,19 @@ const CLIENTES_MOCK: ClienteListagem[] = [
   { id: '4', nome: 'Renata Alves', statusProjeto: 'Concluído', funcionariaResponsavel: 'Bruna Melo' },
 ];
 
-type Props = {
-  usuario?: LoginResponse;
-};
-
-export default function TelaClientes({ usuario }: Props) {
+export default function TelaClientes() {
   const { s } = useResponsive();
-  const styles = useMemo(() => createStyles(s), [s]);
+  const insets = useSafeAreaInsets();
+  const styles = useMemo(() => createStyles(s, insets.top), [s, insets.top]);
   const [busca, setBusca] = useState('');
-  const [abaAtiva, setAbaAtiva] = useState<Aba>('Clientes');
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <CabecalhoTela titulo="Clientes" />
+    <View style={styles.tela}>
+      <View style={styles.topo}>
+        <CabecalhoTela titulo="Clientes" />
+      </View>
 
-      <View style={styles.conteudo}>
+      <View style={styles.corpo}>
         <View style={styles.buscaContainer}>
           <CampoTextoComIcone
             icon="search-outline"
@@ -67,19 +62,21 @@ export default function TelaClientes({ usuario }: Props) {
 
         <BotaoFlutuante onPress={() => {}} />
       </View>
-
-      <BarraNavegacaoInferior abaAtiva={abaAtiva} onTrocarAba={setAbaAtiva} />
-    </SafeAreaView>
+    </View>
   );
 }
 
-const createStyles = (s: Scale) =>
+const createStyles = (s: Scale, safeTop: number) =>
   StyleSheet.create({
-    safeArea: {
+    tela: {
       flex: 1,
       backgroundColor: colors.background,
     },
-    conteudo: {
+    topo: {
+      paddingTop: safeTop,
+      backgroundColor: colors.card,
+    },
+    corpo: {
       flex: 1,
       paddingHorizontal: s(20),
       paddingTop: s(16),
