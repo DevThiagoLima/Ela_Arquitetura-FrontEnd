@@ -13,6 +13,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function Abas() {
   return (
     <Tab.Navigator
+      initialRouteName="Clientes"
       screenOptions={{ headerShown: false }}
       tabBar={({ state, navigation }) => (
         <BarraNavegacaoInferior
