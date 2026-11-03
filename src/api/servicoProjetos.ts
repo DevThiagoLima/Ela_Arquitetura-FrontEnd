@@ -32,9 +32,9 @@ export async function avancarEtapa(projetoId: string): Promise<Projeto> {
   return data;
 }
 
-/** Item avulso: a API cria sempre na etapa atual do projeto. */
-export async function adicionarItem(projetoId: string, descricao: string): Promise<void> {
-  await api.post(`${PROJETOS_ENDPOINT}/${projetoId}/checklist`, { descricao, subEtapaId: null });
+/** Item avulso em uma etapa já alcançada pelo projeto (a atual ou uma anterior). */
+export async function adicionarItem(projetoId: string, etapaId: string, descricao: string): Promise<void> {
+  await api.post(`${PROJETOS_ENDPOINT}/${projetoId}/checklist`, { descricao, subEtapaId: null, etapaId });
 }
 
 /** Remove item avulso; a resposta avisa se, sem ele, a etapa atual já pode avançar. */

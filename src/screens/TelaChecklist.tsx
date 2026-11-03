@@ -49,7 +49,8 @@ export default function TelaChecklist() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [salvandoItemId, setSalvandoItemId] = useState<string | null>(null);
-  const [novoItem, setNovoItem] = useState('');
+  // Texto do campo "Adicionar item" de cada etapa, por etapaId.
+  const [novosItens, setNovosItens] = useState<Record<string, string>>({});
   const [erroAcao, setErroAcao] = useState<string | null>(null);
   const [itemParaApagar, setItemParaApagar] = useState<ChecklistItem | null>(null);
   const [apagando, setApagando] = useState(false);
@@ -120,14 +121,14 @@ export default function TelaChecklist() {
     }
   };
 
-  const adicionarNovoItem = async () => {
-    const descricao = novoItem.trim();
+  const adicionarNovoItem = async (etapaId: string) => {
+    const descricao = (novosItens[etapaId] ?? '').trim();
     if (!projeto || !descricao) return;
 
     setErroAcao(null);
     try {
-      await adicionarItem(projeto.id, descricao);
-      setNovoItem('');
+      await adicionarItem(projeto.id, etapaId, descricao);
+      setNovosItens((atual) => ({ ...atual, [etapaId]: '' }));
       await carregarChecklist(false);
     } catch (e) {
       setErroAcao(getCadastroErrorMessage(e));
@@ -162,11 +163,12 @@ export default function TelaChecklist() {
     />
   );
 
-  // Etapa já alcançada mostra os itens reais (só os da etapa atual são editáveis);
-  // etapa futura mostra as sub-etapas previstas.
+  // Etapa já alcançada (atual ou anterior) mostra os itens reais e é editável;
+  // etapa futura mostra as sub-etapas previstas. Projeto concluído fica só para consulta.
   const renderEtapa = (etapa: EtapaDoChecklist, indice: number) => {
     const futura = !etapa.atual && !etapa.concluida;
-    const editavel = etapa.atual && projeto?.status === 'EmAndamento';
+    const editavel = !futura && projeto?.status === 'EmAndamento';
+    const novoItem = novosItens[etapa.etapaId] ?? '';
 
     return (
       <View key={etapa.etapaId} style={styles.etapa}>
@@ -228,13 +230,17 @@ export default function TelaChecklist() {
               placeholder="Adicionar item ..."
               placeholderTextColor={colors.inputPlaceholder}
               value={novoItem}
-              onChangeText={setNovoItem}
-              onSubmitEditing={adicionarNovoItem}
+              onChangeText={(texto) => setNovosItens((atual) => ({ ...atual, [etapa.etapaId]: texto }))}
+              onSubmitEditing={() => adicionarNovoItem(etapa.etapaId)}
               returnKeyType="done"
               maxFontSizeMultiplier={1.2}
             />
             {novoItem.trim() ? (
-              <Pressable onPress={adicionarNovoItem} accessibilityRole="button" accessibilityLabel="Adicionar item">
+              <Pressable
+                onPress={() => adicionarNovoItem(etapa.etapaId)}
+                accessibilityRole="button"
+                accessibilityLabel="Adicionar item"
+              >
                 <MaterialCommunityIcons name="plus-circle-outline" size={s(22)} color={colors.primary} />
               </Pressable>
             ) : null}
