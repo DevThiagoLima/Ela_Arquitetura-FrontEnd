@@ -15,8 +15,10 @@ import {
   concluirItem,
   listarChecklistCompleta,
   reabrirItem,
+  removerItem,
 } from '../api/servicoProjetos';
 import { BarraNavegacaoInferior } from '../components/BarraNavegacaoInferior';
+import { CaixaConfirmacao } from '../components/CaixaConfirmacao';
 import { CabecalhoTela } from '../components/CabecalhoTela';
 import type { RootStackParamList } from '../navigation/tipos';
 import { colors } from '../theme/cores';
@@ -49,6 +51,8 @@ export default function TelaChecklist() {
   const [salvandoItemId, setSalvandoItemId] = useState<string | null>(null);
   const [novoItem, setNovoItem] = useState('');
   const [erroAcao, setErroAcao] = useState<string | null>(null);
+  const [itemParaApagar, setItemParaApagar] = useState<ChecklistItem | null>(null);
+  const [apagando, setApagando] = useState(false);
 
   // Na primeira carga mostra o indicador; depois de marcar um item só atualiza os dados.
   const carregarChecklist = async (mostrarCarregando = true) => {
@@ -93,6 +97,26 @@ export default function TelaChecklist() {
       setErroAcao(getCadastroErrorMessage(e));
     } finally {
       setSalvandoItemId(null);
+    }
+  };
+
+  // Chamado pelo "Apagar" da caixa de confirmação.
+  const apagarItem = async () => {
+    if (!projeto || !itemParaApagar) return;
+
+    setErroAcao(null);
+    setApagando(true);
+    try {
+      const resposta = await removerItem(itemParaApagar.id);
+      if (resposta.etapaPodeAvancar) {
+        await avancarEtapa(projeto.id);
+      }
+      await carregarChecklist(false);
+    } catch (e) {
+      setErroAcao(getCadastroErrorMessage(e));
+    } finally {
+      setApagando(false);
+      setItemParaApagar(null);
     }
   };
 
@@ -152,24 +176,38 @@ export default function TelaChecklist() {
         </Text>
 
         {etapa.itens.map((item) => (
-          <Pressable
-            key={item.id}
-            onPress={() => alternarItem(item)}
-            disabled={!editavel || salvandoItemId !== null}
-            accessibilityRole="checkbox"
-            accessibilityState={{ checked: item.concluido, disabled: !editavel }}
-            accessibilityLabel={item.descricao}
-            style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-          >
-            {salvandoItemId === item.id ? (
-              <ActivityIndicator size="small" color={colors.primary} style={styles.caixaCarregando} />
-            ) : (
-              renderCaixa(item.concluido)
-            )}
-            <Text style={styles.textoItem} maxFontSizeMultiplier={1.2}>
-              {item.descricao}
-            </Text>
-          </Pressable>
+          <View key={item.id} style={styles.item}>
+            <Pressable
+              onPress={() => alternarItem(item)}
+              disabled={!editavel || salvandoItemId !== null}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: item.concluido, disabled: !editavel }}
+              accessibilityLabel={item.descricao}
+              style={({ pressed }) => [styles.itemMarcavel, pressed && styles.pressed]}
+            >
+              {salvandoItemId === item.id ? (
+                <ActivityIndicator size="small" color={colors.primary} style={styles.caixaCarregando} />
+              ) : (
+                renderCaixa(item.concluido)
+              )}
+              <Text style={styles.textoItem} maxFontSizeMultiplier={1.2}>
+                {item.descricao}
+              </Text>
+            </Pressable>
+
+            {/* Só itens adicionados à mão (sem sub-etapa) podem ser apagados. */}
+            {editavel && !item.subEtapaId ? (
+              <Pressable
+                onPress={() => setItemParaApagar(item)}
+                accessibilityRole="button"
+                accessibilityLabel={`Apagar ${item.descricao}`}
+                hitSlop={8}
+                style={({ pressed }) => [styles.botaoApagar, pressed && styles.pressed]}
+              >
+                <MaterialCommunityIcons name="trash-can-outline" size={s(18)} color={colors.icon} />
+              </Pressable>
+            ) : null}
+          </View>
         ))}
 
         {etapa.itens.length === 0 &&
@@ -273,6 +311,15 @@ export default function TelaChecklist() {
         abaAtiva="Clientes"
         onTrocarAba={(aba) => navigation.navigate('Abas', { screen: aba })}
       />
+
+      <CaixaConfirmacao
+        visivel={itemParaApagar !== null}
+        titulo={`Deseja apagar "${itemParaApagar?.descricao ?? ''}"?`}
+        textoConfirmar="Apagar"
+        carregando={apagando}
+        onConfirmar={apagarItem}
+        onCancelar={() => setItemParaApagar(null)}
+      />
     </View>
   );
 }
@@ -364,6 +411,15 @@ const createStyles = (s: Scale, safeTop: number) =>
     },
     itemFuturo: {
       opacity: 0.5,
+    },
+    itemMarcavel: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    botaoApagar: {
+      marginLeft: s(8),
+      padding: s(2),
     },
     pressed: {
       opacity: 0.6,
