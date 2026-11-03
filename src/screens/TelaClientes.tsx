@@ -1,33 +1,75 @@
-import React, { useMemo, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { getClientesErrorMessage, listarClientes } from '../api/servicoClientes';
 import { BotaoFlutuante } from '../components/BotaoFlutuante';
 import { CabecalhoTela } from '../components/CabecalhoTela';
 import { CampoTextoComIcone } from '../components/CampoTextoComIcone';
 import { CardCliente } from '../components/CardCliente';
+import type { AbasParamList } from '../navigation/tipos';
 import { colors } from '../theme/cores';
+import { fonts } from '../theme/tipografia';
 import { Scale, useResponsive } from '../utils/responsividade';
+import type { Cliente } from '../types/cliente';
 
-type ClienteListagem = {
-  id: string;
-  nome: string;
-  statusProjeto: string;
-  funcionariaResponsavel: string;
-};
-
-const CLIENTES_MOCK: ClienteListagem[] = [
-  { id: '1', nome: 'Maria Fernandes', statusProjeto: 'Em andamento', funcionariaResponsavel: 'Ana Souza' },
-  { id: '2', nome: 'João Pedro Lima', statusProjeto: 'Estudos Preliminares', funcionariaResponsavel: 'Carla Dias' },
-  { id: '3', nome: 'Empresa ABC Ltda', statusProjeto: 'Projeto Executivo', funcionariaResponsavel: 'Ana Souza' },
-  { id: '4', nome: 'Renata Alves', statusProjeto: 'Concluído', funcionariaResponsavel: 'Bruna Melo' },
-];
+type Navegacao = BottomTabNavigationProp<AbasParamList, 'Clientes'>;
 
 export default function TelaClientes() {
   const { s } = useResponsive();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<Navegacao>();
   const styles = useMemo(() => createStyles(s, insets.top), [s, insets.top]);
   const [busca, setBusca] = useState('');
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const carregarClientes = async (termo: string) => {
+    setErro(null);
+    setCarregando(true);
+    try {
+      const data = await listarClientes(termo);
+      setClientes(data);
+    } catch (e) {
+      setErro(getClientesErrorMessage(e));
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  // Carrega ao abrir a tela e refaz a busca enquanto o usuário digita,
+  // esperando ele parar por um instante para não chamar a API a cada letra.
+  useEffect(() => {
+    const termo = busca.trim();
+    const timer = setTimeout(() => carregarClientes(termo), termo ? 400 : 0);
+    return () => clearTimeout(timer);
+  }, [busca]);
+
+  // Tocar na aba Clientes (mesmo já estando nela) volta para a lista completa.
+  // Se havia busca, limpar o campo já dispara o recarregamento pelo useEffect acima.
+  useEffect(() => {
+    return navigation.addListener('tabPress', () => {
+      if (busca) {
+        setBusca('');
+      } else {
+        carregarClientes('');
+      }
+    });
+  }, [navigation, busca]);
+
+  const renderListaVazia = () => {
+    if (carregando) {
+      return <ActivityIndicator size="large" color={colors.card} style={styles.aviso} />;
+    }
+    return (
+      <Text style={[styles.aviso, erro ? styles.avisoErro : null]} maxFontSizeMultiplier={1.2}>
+        {erro ?? (busca.trim() ? 'Nenhum cliente encontrado.' : 'Nenhum cliente cadastrado.')}
+      </Text>
+    );
+  };
 
   return (
     <View style={styles.tela}>
@@ -47,15 +89,12 @@ export default function TelaClientes() {
         </View>
 
         <FlatList
-          data={CLIENTES_MOCK}
+          data={carregando ? [] : clientes}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <CardCliente
-              nome={item.nome}
-              statusProjeto={item.statusProjeto}
-              funcionariaResponsavel={item.funcionariaResponsavel}
-            />
+            <CardCliente nome={item.nome} telefone={item.telefone} email={item.email} />
           )}
+          ListEmptyComponent={renderListaVazia}
           contentContainerStyle={styles.lista}
           showsVerticalScrollIndicator={false}
         />
@@ -86,5 +125,15 @@ const createStyles = (s: Scale, safeTop: number) =>
     },
     lista: {
       paddingBottom: s(80),
+    },
+    aviso: {
+      marginTop: s(32),
+      textAlign: 'center',
+      fontFamily: fonts.italic,
+      fontSize: s(15),
+      color: colors.onBackground,
+    },
+    avisoErro: {
+      color: colors.primary,
     },
   });
