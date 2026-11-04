@@ -8,11 +8,11 @@ import { Scale, useResponsive } from '../utils/responsividade';
 
 type Props = {
   nome: string;
-  statusProjeto: string;
-  funcionariaResponsavel: string;
+  telefone: string;
+  email: string | null;
 };
 
-export function CardCliente({ nome, statusProjeto, funcionariaResponsavel }: Props) {
+export function CardCliente({ nome, telefone, email }: Props) {
   const { s } = useResponsive();
   const styles = useMemo(() => createStyles(s), [s]);
 
@@ -25,15 +25,15 @@ export function CardCliente({ nome, statusProjeto, funcionariaResponsavel }: Pro
         </Text>
       </View>
       <View style={styles.linha}>
-        <MaterialCommunityIcons name="card-text-outline" size={s(20)} color={colors.icon} />
+        <MaterialCommunityIcons name="phone-outline" size={s(20)} color={colors.icon} />
         <Text style={styles.texto} maxFontSizeMultiplier={1.2} numberOfLines={1}>
-          {statusProjeto}
+          {telefone}
         </Text>
       </View>
       <View style={[styles.linha, styles.ultimaLinha]}>
-        <MaterialCommunityIcons name="card-account-details-outline" size={s(20)} color={colors.icon} />
+        <MaterialCommunityIcons name="email-outline" size={s(20)} color={colors.icon} />
         <Text style={styles.texto} maxFontSizeMultiplier={1.2} numberOfLines={1}>
-          {funcionariaResponsavel}
+          {email ?? 'Sem e-mail cadastrado'}
         </Text>
       </View>
     </View>
