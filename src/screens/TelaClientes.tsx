@@ -1,29 +1,28 @@
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getClientesErrorMessage, listarClientes } from '../api/servicoClientes';
-import { BarraNavegacaoInferior } from '../components/BarraNavegacaoInferior';
-import type { Aba } from '../components/BarraNavegacaoInferior';
 import { BotaoFlutuante } from '../components/BotaoFlutuante';
 import { CabecalhoTela } from '../components/CabecalhoTela';
 import { CampoTextoComIcone } from '../components/CampoTextoComIcone';
 import { CardCliente } from '../components/CardCliente';
+import type { AbasParamList } from '../navigation/tipos';
 import { colors } from '../theme/cores';
 import { fonts } from '../theme/tipografia';
 import { Scale, useResponsive } from '../utils/responsividade';
-import type { LoginResponse } from '../types/autenticacao';
 import type { Cliente } from '../types/cliente';
 
-type Props = {
-  usuario?: LoginResponse;
-};
+type Navegacao = BottomTabNavigationProp<AbasParamList, 'Clientes'>;
 
-export default function TelaClientes({ usuario }: Props) {
+export default function TelaClientes() {
   const { s } = useResponsive();
-  const styles = useMemo(() => createStyles(s), [s]);
+  const insets = useSafeAreaInsets();
+  const navigation = useNavigation<Navegacao>();
+  const styles = useMemo(() => createStyles(s, insets.top), [s, insets.top]);
   const [busca, setBusca] = useState('');
-  const [abaAtiva, setAbaAtiva] = useState<Aba>('Clientes');
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -51,16 +50,15 @@ export default function TelaClientes({ usuario }: Props) {
 
   // Tocar na aba Clientes (mesmo já estando nela) volta para a lista completa.
   // Se havia busca, limpar o campo já dispara o recarregamento pelo useEffect acima.
-  const handleTrocarAba = (aba: Aba) => {
-    setAbaAtiva(aba);
-    if (aba === 'Clientes') {
+  useEffect(() => {
+    return navigation.addListener('tabPress', () => {
       if (busca) {
         setBusca('');
       } else {
         carregarClientes('');
       }
-    }
-  };
+    });
+  }, [navigation, busca]);
 
   const renderListaVazia = () => {
     if (carregando) {
@@ -74,10 +72,12 @@ export default function TelaClientes({ usuario }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <CabecalhoTela titulo="Clientes" />
+    <View style={styles.tela}>
+      <View style={styles.topo}>
+        <CabecalhoTela titulo="Clientes" />
+      </View>
 
-      <View style={styles.conteudo}>
+      <View style={styles.corpo}>
         <View style={styles.buscaContainer}>
           <CampoTextoComIcone
             icon="search-outline"
@@ -101,19 +101,21 @@ export default function TelaClientes({ usuario }: Props) {
 
         <BotaoFlutuante onPress={() => {}} />
       </View>
-
-      <BarraNavegacaoInferior abaAtiva={abaAtiva} onTrocarAba={handleTrocarAba} />
-    </SafeAreaView>
+    </View>
   );
 }
 
-const createStyles = (s: Scale) =>
+const createStyles = (s: Scale, safeTop: number) =>
   StyleSheet.create({
-    safeArea: {
+    tela: {
       flex: 1,
       backgroundColor: colors.background,
     },
-    conteudo: {
+    topo: {
+      paddingTop: safeTop,
+      backgroundColor: colors.card,
+    },
+    corpo: {
       flex: 1,
       paddingHorizontal: s(20),
       paddingTop: s(16),

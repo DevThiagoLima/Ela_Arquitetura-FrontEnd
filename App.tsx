@@ -1,12 +1,13 @@
 import { OpenSans_400Regular_Italic, useFonts } from '@expo-google-fonts/open-sans';
+import { NavigationContainer } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { setAuthToken } from './src/api/cliente';
+import { Navegacao } from './src/navigation';
 import TelaCarregando from './src/screens/TelaCarregando';
-import TelaClientes from './src/screens/TelaClientes'; // ← NOVO
 import TelaLogin from './src/screens/TelaLogin';
 import type { LoginResponse } from './src/types/autenticacao';
 
@@ -18,7 +19,7 @@ const TEMPO_MINIMO_CARREGANDO_MS = 3000;
 export default function App() {
   const [fontsLoaded] = useFonts({ OpenSans_400Regular_Italic });
   const [carregando, setCarregando] = useState(true);
-  const [usuario, setUsuario] = useState<LoginResponse | null>(null); // ← NOVO
+  const [usuario, setUsuario] = useState<LoginResponse | null>(null);
 
   useEffect(() => {
     if (!fontsLoaded) return;
@@ -42,7 +43,9 @@ export default function App() {
       {carregando ? (
         <TelaCarregando />
       ) : usuario ? (
-        <TelaClientes usuario={usuario} />
+        <NavigationContainer>
+          <Navegacao />
+        </NavigationContainer>
       ) : (
         <TelaLogin onLoginSuccess={handleLoginSuccess} />
       )}

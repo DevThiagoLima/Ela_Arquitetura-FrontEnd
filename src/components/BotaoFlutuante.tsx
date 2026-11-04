@@ -7,9 +7,15 @@ import { Scale, useResponsive } from '../utils/responsividade';
 
 type Props = {
   onPress: () => void;
+  icone?: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+  rotulo?: string;
 };
 
-export function BotaoFlutuante({ onPress }: Props) {
+export function BotaoFlutuante({
+  onPress,
+  icone = 'file-document-plus-outline',
+  rotulo = 'Adicionar',
+}: Props) {
   const { s } = useResponsive();
   const styles = useMemo(() => createStyles(s), [s]);
 
@@ -17,10 +23,10 @@ export function BotaoFlutuante({ onPress }: Props) {
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel="Adicionar"
+      accessibilityLabel={rotulo}
       style={({ pressed }) => [styles.botao, pressed && styles.pressed]}
     >
-      <MaterialCommunityIcons name="file-document-plus-outline" size={s(28)} color={colors.onCard} />
+      <MaterialCommunityIcons name={icone} size={s(28)} color={colors.onCard} />
     </Pressable>
   );
 }
