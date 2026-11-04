@@ -13,6 +13,11 @@ export async function listarClientes(busca?: string): Promise<Cliente[]> {
   return data;
 }
 
+export async function obterCliente(id: string): Promise<Cliente> {
+  const { data } = await api.get<Cliente>(`${CLIENTES_ENDPOINT}/${id}`);
+  return data;
+}
+
 export async function cadastrarCliente(payload: CadastroClienteRequest): Promise<Cliente> {
   const { data } = await api.post<Cliente>(CLIENTES_ENDPOINT, payload);
   return data;

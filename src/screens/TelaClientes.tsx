@@ -114,7 +114,12 @@ export default function TelaClientes() {
           data={carregando ? [] : clientes}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <CardCliente nome={item.nome} telefone={item.telefone} email={item.email} />
+            <CardCliente
+              nome={item.nome}
+              telefone={item.telefone}
+              email={item.email}
+              onPress={() => navigation.navigate('Checklist', { clienteId: item.id })}
+            />
           )}
           ListEmptyComponent={renderListaVazia}
           contentContainerStyle={styles.lista}
