@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/cores';
 import { fonts } from '../theme/tipografia';
@@ -10,14 +10,21 @@ type Props = {
   nome: string;
   telefone: string;
   email: string | null;
+  onPress?: () => void;
 };
 
-export function CardCliente({ nome, telefone, email }: Props) {
+export function CardCliente({ nome, telefone, email, onPress }: Props) {
   const { s } = useResponsive();
   const styles = useMemo(() => createStyles(s), [s]);
 
   return (
-    <View style={styles.card}>
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Abrir checklist de ${nome}`}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+    >
       <View style={styles.linha}>
         <MaterialCommunityIcons name="account-outline" size={s(20)} color={colors.icon} />
         <Text style={styles.texto} maxFontSizeMultiplier={1.2} numberOfLines={1}>
@@ -36,7 +43,7 @@ export function CardCliente({ nome, telefone, email }: Props) {
           {email ?? 'Sem e-mail cadastrado'}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -52,6 +59,9 @@ const createStyles = (s: Scale) =>
       shadowOpacity: 0.35,
       shadowRadius: s(4),
       elevation: 4,
+    },
+    pressed: {
+      opacity: 0.7,
     },
     linha: {
       flexDirection: 'row',

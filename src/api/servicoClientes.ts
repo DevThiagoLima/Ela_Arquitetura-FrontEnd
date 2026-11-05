@@ -1,6 +1,6 @@
 import { isAxiosError } from 'axios';
 
-import type { Cliente } from '../types/cliente';
+import type { CadastroClienteRequest, Cliente } from '../types/cliente';
 import { api } from './cliente';
 
 const CLIENTES_ENDPOINT = '/api/clientes';
@@ -11,6 +11,27 @@ export async function listarClientes(busca?: string): Promise<Cliente[]> {
     params: busca ? { busca } : undefined,
   });
   return data;
+}
+
+export async function obterCliente(id: string): Promise<Cliente> {
+  const { data } = await api.get<Cliente>(`${CLIENTES_ENDPOINT}/${id}`);
+  return data;
+}
+
+export async function cadastrarCliente(payload: CadastroClienteRequest): Promise<Cliente> {
+  const { data } = await api.post<Cliente>(CLIENTES_ENDPOINT, payload);
+  return data;
+}
+
+/** A API responde 400 com { erros: [...] } quando algum campo é inválido. */
+export function getCadastroErrorMessage(error: unknown): string {
+  if (isAxiosError<{ erros?: string[] }>(error) && error.response?.status === 400) {
+    const erros = error.response.data?.erros;
+    if (erros?.length) {
+      return erros.join('\n');
+    }
+  }
+  return getClientesErrorMessage(error);
 }
 
 export function getClientesErrorMessage(error: unknown): string {
