@@ -6,7 +6,10 @@ import TelaCadastroCliente from '../screens/TelaCadastroCliente';
 import TelaChecklist from '../screens/TelaChecklist';
 import TelaClientes from '../screens/TelaClientes';
 // import TelaConcluidos from '../screens/TelaConcluidos';
+import TelaExclusaoFuncionario from '../screens/TelaExclusaoFuncionario';
+import TelaFormularioFuncionario from '../screens/TelaFormularioFuncionario';
 import { TelaFuncionarios } from '../screens/TelaFuncionarios';
+import TelaInformacoesFuncionario from '../screens/TelaInformacoesFuncionario';
 import type { AbasParamList, RootStackParamList } from './tipos';
 
 const Tab = createBottomTabNavigator<AbasParamList>();
@@ -42,7 +45,9 @@ export function Navegacao() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Abas" component={Abas} />
-      {/* <Stack.Screen name="CadastroFuncionario" component={TelaCadastroFuncionario} /> */}
+      <Stack.Screen name="FormularioFuncionario" component={TelaFormularioFuncionario} />
+      <Stack.Screen name="InformacoesFuncionario" component={TelaInformacoesFuncionario} />
+      <Stack.Screen name="ExclusaoFuncionario" component={TelaExclusaoFuncionario} />
       <Stack.Screen name="CadastroCliente" component={TelaCadastroCliente} />
       <Stack.Screen name="Checklist" component={TelaChecklist} />
     </Stack.Navigator>

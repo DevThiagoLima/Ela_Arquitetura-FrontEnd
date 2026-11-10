@@ -11,5 +11,6 @@ export const colors = {
   inputPlaceholder: '#3D3D3D',
   icon: '#111111',
   error: '#FF9D8F',
+  danger: '#FF1E00', // botão "Excluir" do Figma
   shadow: '#000000',
 } as const;
