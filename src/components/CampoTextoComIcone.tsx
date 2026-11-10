@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo } from 'react';
 import type { ComponentProps, ReactNode, Ref } from 'react';
-import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
+import { StyleSheet, TextInput, TextInputInstance, TextInputProps, View } from 'react-native';
 
 import { colors } from '../theme/cores';
 import { fonts } from '../theme/tipografia';
@@ -11,7 +11,7 @@ type Props = TextInputProps & {
   icon: ComponentProps<typeof Ionicons>['name'];
   /** Elemento exibido no canto direito do campo (ex.: botão de mostrar senha). */
   rightElement?: ReactNode;
-  ref?: Ref<TextInput>;
+  ref?: Ref<TextInputInstance>;
 };
 
 export function CampoTextoComIcone({ icon, rightElement, style, ref, ...inputProps }: Props) {

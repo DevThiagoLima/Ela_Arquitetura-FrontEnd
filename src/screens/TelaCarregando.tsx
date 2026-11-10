@@ -15,8 +15,11 @@ const logo = require('../../assets/logo.png');
  */
 const LARGURA_LOGO = 200;
 
-const { width: larguraOriginal, height: alturaOriginal } = Image.resolveAssetSource(logo);
-const ALTURA_LOGO = LARGURA_LOGO / (larguraOriginal / alturaOriginal);
+const fonteLogo = Image.resolveAssetSource(logo);
+const ALTURA_LOGO =
+  fonteLogo?.width && fonteLogo?.height
+    ? LARGURA_LOGO * (fonteLogo.height / fonteLogo.width)
+    : LARGURA_LOGO;
 
 export default function TelaCarregando() {
   const { s } = useResponsive();

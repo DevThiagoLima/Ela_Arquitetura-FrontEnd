@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TextInputInstance,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -31,7 +32,7 @@ export default function TelaLogin({ onLoginSuccess }: Props) {
   const { s } = useResponsive();
   const styles = useMemo(() => createStyles(s), [s]);
 
-  const passwordRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
