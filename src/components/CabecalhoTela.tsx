@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import type { ReactNode } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/cores';
@@ -10,11 +9,9 @@ const logo = require('../../assets/logo.png');
 
 type Props = {
   titulo: string;
-  /** Elemento exibido no canto direito do cabeçalho (ex.: botão de cadastrar). */
-  rightElement?: ReactNode;
 };
 
-export function CabecalhoTela({ titulo, rightElement }: Props) {
+export function CabecalhoTela({ titulo }: Props) {
   const { s } = useResponsive();
   const styles = useMemo(() => createStyles(s), [s]);
 
@@ -24,7 +21,6 @@ export function CabecalhoTela({ titulo, rightElement }: Props) {
       <Text style={styles.titulo} maxFontSizeMultiplier={1.2}>
         {titulo}
       </Text>
-      {rightElement ? <View style={styles.direita}>{rightElement}</View> : null}
     </View>
   );
 }
@@ -49,8 +45,5 @@ const createStyles = (s: Scale) =>
       fontFamily: fonts.italic,
       fontSize: s(24),
       color: colors.onCard,
-    },
-    direita: {
-      marginLeft: 'auto',
     },
   });
