@@ -8,5 +8,5 @@ export interface LoginResponse {
   token: string;
   refreshToken: string;
   nome: string;
-  cargo: string;
+  cargo: string | null;
 }

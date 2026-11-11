@@ -1,9 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { CompositeNavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getClientesErrorMessage, listarClientes } from '../api/servicoClientes';
@@ -83,20 +82,7 @@ export default function TelaClientes() {
   return (
     <View style={styles.tela}>
       <View style={styles.topo}>
-        <CabecalhoTela
-          titulo="Clientes"
-          rightElement={
-            <Pressable
-              onPress={() => navigation.navigate('CadastroCliente')}
-              accessibilityRole="button"
-              accessibilityLabel="Cadastrar cliente"
-              style={({ pressed }) => [styles.botaoCadastrar, pressed && styles.pressed]}
-            >
-              <Ionicons name="add" size={s(22)} color={colors.onCard} />
-              <Ionicons name="person-outline" size={s(26)} color={colors.onCard} />
-            </Pressable>
-          }
-        />
+        <CabecalhoTela titulo="Clientes" />
       </View>
 
       <View style={styles.corpo}>
@@ -126,7 +112,11 @@ export default function TelaClientes() {
           showsVerticalScrollIndicator={false}
         />
 
-        <BotaoFlutuante onPress={() => {}} />
+        <BotaoFlutuante
+          onPress={() => navigation.navigate('CadastroCliente')}
+          icone="account-plus-outline"
+          rotulo="Adicionar cliente"
+        />
       </View>
     </View>
   );
@@ -146,13 +136,6 @@ const createStyles = (s: Scale, safeTop: number) =>
       flex: 1,
       paddingHorizontal: s(20),
       paddingTop: s(16),
-    },
-    botaoCadastrar: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    pressed: {
-      opacity: 0.7,
     },
     buscaContainer: {
       marginBottom: s(16),
