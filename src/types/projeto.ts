@@ -11,12 +11,24 @@ export interface Projeto {
   id: string;
   clienteId: string;
   titulo: string;
+  /** O endereço da obra é de cada projeto (o mesmo cliente pode ter obras em lugares diferentes). */
+  enderecoObra: string | null;
+  /** Pasta do Drive do projeto (item "Link do Drive" do card). */
+  linkDrive: string | null;
   status: StatusProjeto;
   etapaAtualId: string;
   dataInicio: string;
   dataConclusao: string | null;
   percentualConcluido: number;
   funcionarios: FuncionarioDoProjeto[];
+}
+
+// Corpo de POST /api/projetos (com clienteId) e de PUT /api/projetos/{id}.
+export interface DadosProjetoRequest {
+  titulo: string;
+  enderecoObra: string | null;
+  /** null deixa o projeto sem responsável. */
+  funcionarioResponsavelId: string | null;
 }
 
 export interface ChecklistItem {

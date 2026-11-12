@@ -7,17 +7,22 @@ export interface Cliente {
   endereco: string | null;
   cpf: string | null;
   pontoReferencia: string | null;
-  enderecoObra: string | null;
   dataCadastro: string;
   ativo: boolean;
+  quantidadeProjetos: number;
 }
 
-// Corpo de POST /api/clientes (CriarClienteRequest na API em C#).
-export interface CadastroClienteRequest {
+// Corpo de PUT /api/clientes/{id} (AtualizarClienteRequest na API em C#).
+export interface AtualizarClienteRequest {
   nome: string;
   telefone: string;
   email: string | null;
   endereco: string | null;
   cpf: string | null;
+  pontoReferencia: string | null;
+}
+
+// Corpo de POST /api/clientes. O endereço da obra vai para o primeiro projeto, que nasce junto com o cliente.
+export interface CadastroClienteRequest extends Omit<AtualizarClienteRequest, 'pontoReferencia'> {
   enderecoObra: string | null;
 }
