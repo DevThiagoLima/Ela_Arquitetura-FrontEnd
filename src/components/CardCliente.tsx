@@ -10,10 +10,12 @@ type Props = {
   nome: string;
   telefone: string;
   email: string | null;
+  /** Com mais de um projeto, o card mostra a marca "N projetos". */
+  quantidadeProjetos?: number;
   onPress?: () => void;
 };
 
-export function CardCliente({ nome, telefone, email, onPress }: Props) {
+export function CardCliente({ nome, telefone, email, quantidadeProjetos = 1, onPress }: Props) {
   const { s } = useResponsive();
   const styles = useMemo(() => createStyles(s), [s]);
 
@@ -22,14 +24,25 @@ export function CardCliente({ nome, telefone, email, onPress }: Props) {
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Abrir checklist de ${nome}`}
+      accessibilityLabel={
+        quantidadeProjetos > 1
+          ? `Abrir checklist de ${nome}, ${quantidadeProjetos} projetos`
+          : `Abrir checklist de ${nome}`
+      }
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <View style={styles.linha}>
         <MaterialCommunityIcons name="account-outline" size={s(20)} color={colors.icon} />
-        <Text style={styles.texto} maxFontSizeMultiplier={1.2} numberOfLines={1}>
+        <Text style={[styles.texto, styles.nome]} maxFontSizeMultiplier={1.2} numberOfLines={1}>
           {nome}
         </Text>
+        {quantidadeProjetos > 1 ? (
+          <View style={styles.marcaProjetos}>
+            <Text style={styles.textoMarca} maxFontSizeMultiplier={1.2}>
+              {quantidadeProjetos} projetos
+            </Text>
+          </View>
+        ) : null}
       </View>
       <View style={styles.linha}>
         <MaterialCommunityIcons name="phone-outline" size={s(20)} color={colors.icon} />
@@ -70,6 +83,21 @@ const createStyles = (s: Scale) =>
     },
     ultimaLinha: {
       marginBottom: 0,
+    },
+    nome: {
+      flex: 1,
+    },
+    marcaProjetos: {
+      marginLeft: s(8),
+      paddingHorizontal: s(8),
+      paddingVertical: s(2),
+      borderRadius: s(10),
+      backgroundColor: colors.primary,
+    },
+    textoMarca: {
+      fontFamily: fonts.italic,
+      fontSize: s(11),
+      color: colors.onPrimary,
     },
     texto: {
       marginLeft: s(8),

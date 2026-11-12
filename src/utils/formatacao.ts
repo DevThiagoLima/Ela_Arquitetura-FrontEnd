@@ -1,3 +1,5 @@
+import type { Projeto, StatusProjeto } from '../types/projeto';
+
 export const somenteDigitos = (valor: string) => valor.replace(/\D/g, '');
 
 /**
@@ -54,4 +56,14 @@ export function isoParaDataBr(data: string | null): string | null {
   if (!data) return null;
   const [ano, mes, dia] = data.slice(0, 10).split('-');
   return `${dia}/${mes}/${ano}`;
+}
+
+const ROTULO_STATUS: Record<StatusProjeto, string> = {
+  EmAndamento: 'Em andamento',
+  Concluido: 'Concluído',
+};
+
+/** "Em andamento · 40%" */
+export function descreverStatusProjeto(projeto: Pick<Projeto, 'status' | 'percentualConcluido'>): string {
+  return `${ROTULO_STATUS[projeto.status]} · ${projeto.percentualConcluido}%`;
 }

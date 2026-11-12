@@ -8,6 +8,7 @@ import TelaClientes from '../screens/TelaClientes';
 // import TelaConcluidos from '../screens/TelaConcluidos';
 import TelaExclusaoFuncionario from '../screens/TelaExclusaoFuncionario';
 import TelaFormularioFuncionario from '../screens/TelaFormularioFuncionario';
+import TelaFormularioProjeto from '../screens/TelaFormularioProjeto';
 import { TelaFuncionarios } from '../screens/TelaFuncionarios';
 import TelaInformacoesFuncionario from '../screens/TelaInformacoesFuncionario';
 import type { AbasParamList, RootStackParamList } from './tipos';
@@ -50,6 +51,7 @@ export function Navegacao() {
       <Stack.Screen name="ExclusaoFuncionario" component={TelaExclusaoFuncionario} />
       <Stack.Screen name="CadastroCliente" component={TelaCadastroCliente} />
       <Stack.Screen name="Checklist" component={TelaChecklist} />
+      <Stack.Screen name="FormularioProjeto" component={TelaFormularioProjeto} />
     </Stack.Navigator>
   );
 }

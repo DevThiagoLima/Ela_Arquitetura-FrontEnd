@@ -104,6 +104,7 @@ export default function TelaClientes() {
               nome={item.nome}
               telefone={item.telefone}
               email={item.email}
+              quantidadeProjetos={item.quantidadeProjetos}
               onPress={() => navigation.navigate('Checklist', { clienteId: item.id })}
             />
           )}

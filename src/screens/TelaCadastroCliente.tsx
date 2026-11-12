@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { buscarEnderecoPorCep } from '../api/servicoCep';
-import { cadastrarCliente, getCadastroErrorMessage } from '../api/servicoClientes';
+import { atualizarCliente, cadastrarCliente, getCadastroErrorMessage } from '../api/servicoClientes';
 import { BarraNavegacaoInferior } from '../components/BarraNavegacaoInferior';
 import { BotaoLogin } from '../components/BotaoLogin';
 import { CabecalhoTela } from '../components/CabecalhoTela';
@@ -14,27 +15,37 @@ import { CampoTextoComIcone } from '../components/CampoTextoComIcone';
 import type { RootStackParamList } from '../navigation/tipos';
 import { colors } from '../theme/cores';
 import { fonts } from '../theme/tipografia';
+import { formatarTelefone } from '../utils/formatacao';
 import { Scale, useResponsive } from '../utils/responsividade';
 
 type Navegacao = NativeStackNavigationProp<RootStackParamList>;
+type Rota = RouteProp<RootStackParamList, 'CadastroCliente'>;
 
 const somenteDigitos = (valor: string) => valor.replace(/\D/g, '');
 const textoOuNulo = (valor: string) => valor.trim() || null;
 
+/**
+ * Cadastro (sem parâmetro) e edição (com o cliente, campos já preenchidos).
+ * O endereço da obra só aparece no cadastro: ele vai para o primeiro projeto e depois é editado no projeto.
+ */
 export default function TelaCadastroCliente() {
   const { s } = useResponsive();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<Navegacao>();
+  const { params } = useRoute<Rota>();
   const styles = useMemo(() => createStyles(s, insets.top), [s, insets.top]);
 
-  const [nome, setNome] = useState('');
-  const [cpf, setCpf] = useState('');
+  const existente = params?.cliente;
+  const editando = !!existente;
+
+  const [nome, setNome] = useState(existente?.nome ?? '');
+  const [cpf, setCpf] = useState(existente?.cpf ?? '');
   const [cep, setCep] = useState('');
-  const [endereco, setEndereco] = useState('');
+  const [endereco, setEndereco] = useState(existente?.endereco ?? '');
   const [cepObra, setCepObra] = useState('');
   const [enderecoObra, setEnderecoObra] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [email, setEmail] = useState('');
+  const [telefone, setTelefone] = useState(formatarTelefone(existente?.telefone ?? null) ?? '');
+  const [email, setEmail] = useState(existente?.email ?? '');
   const [salvando, setSalvando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -73,15 +84,20 @@ export default function TelaCadastroCliente() {
     setErro(null);
     setSalvando(true);
     try {
-      await cadastrarCliente({
+      const dados = {
         nome: nome.trim(),
         telefone: telefone.trim(),
         email: textoOuNulo(email),
         endereco: textoOuNulo(endereco),
         cpf: textoOuNulo(cpf),
-        enderecoObra: textoOuNulo(enderecoObra),
-      });
-      // Mostra a confirmação por 1 segundo e volta; a lista recarrega sozinha ao ter foco.
+      };
+      if (existente) {
+        // O app não edita o ponto de referência; manda o que já estava para não apagar.
+        await atualizarCliente(existente.id, { ...dados, pontoReferencia: existente.pontoReferencia });
+      } else {
+        await cadastrarCliente({ ...dados, enderecoObra: textoOuNulo(enderecoObra) });
+      }
+      // Mostra a confirmação por 1 segundo e volta; a tela anterior recarrega sozinha ao ter foco.
       setSucesso(true);
       setTimeout(() => navigation.goBack(), 1000);
     } catch (e) {
@@ -94,7 +110,7 @@ export default function TelaCadastroCliente() {
   return (
     <View style={styles.tela}>
       <View style={styles.topo}>
-        <CabecalhoTela titulo="Cadastro" />
+        <CabecalhoTela titulo={editando ? 'Edição - Cliente' : 'Cadastro'} />
       </View>
 
       <KeyboardAvoidingView
@@ -151,26 +167,30 @@ export default function TelaCadastroCliente() {
               onChangeText={setEndereco}
             />
 
-            <Text style={styles.label} maxFontSizeMultiplier={1.2}>
-              CEP da Obra
-            </Text>
-            <CampoTextoComIcone
-              icon="map-outline"
-              placeholder="Informe o CEP da obra ..."
-              value={cepObra}
-              onChangeText={(v) => preencherPorCep(v, setCepObra, setEnderecoObra)}
-              keyboardType="numeric"
-            />
+            {editando ? null : (
+              <>
+                <Text style={styles.label} maxFontSizeMultiplier={1.2}>
+                  CEP da Obra
+                </Text>
+                <CampoTextoComIcone
+                  icon="map-outline"
+                  placeholder="Informe o CEP da obra ..."
+                  value={cepObra}
+                  onChangeText={(v) => preencherPorCep(v, setCepObra, setEnderecoObra)}
+                  keyboardType="numeric"
+                />
 
-            <Text style={styles.label} maxFontSizeMultiplier={1.2}>
-              Endereço da Obra
-            </Text>
-            <CampoTextoComIcone
-              icon="construct-outline"
-              placeholder="Informe o endereço da obra ..."
-              value={enderecoObra}
-              onChangeText={setEnderecoObra}
-            />
+                <Text style={styles.label} maxFontSizeMultiplier={1.2}>
+                  Endereço da Obra
+                </Text>
+                <CampoTextoComIcone
+                  icon="construct-outline"
+                  placeholder="Informe o endereço da obra ..."
+                  value={enderecoObra}
+                  onChangeText={setEnderecoObra}
+                />
+              </>
+            )}
 
             <Text style={styles.label} maxFontSizeMultiplier={1.2}>
               Telefone
@@ -203,7 +223,7 @@ export default function TelaCadastroCliente() {
             ) : null}
 
             <BotaoLogin
-              title="Finalizar Cadastro"
+              title={editando ? 'Salvar Alterações' : 'Finalizar Cadastro'}
               onPress={handleCadastrar}
               loading={salvando}
               style={styles.botao}
@@ -222,7 +242,7 @@ export default function TelaCadastroCliente() {
           <View style={styles.avisoSucesso}>
             <Ionicons name="checkmark-circle-outline" size={s(48)} color={colors.onCard} />
             <Text style={styles.textoSucesso} maxFontSizeMultiplier={1.2}>
-              Cliente cadastrado com sucesso!
+              {editando ? 'Cliente atualizado com sucesso!' : 'Cliente cadastrado com sucesso!'}
             </Text>
           </View>
         </View>

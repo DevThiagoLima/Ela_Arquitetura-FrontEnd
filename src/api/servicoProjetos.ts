@@ -1,16 +1,28 @@
-import type { ChecklistItemAlterado, EtapaDoChecklist, Projeto } from '../types/projeto';
+import type { ChecklistItemAlterado, DadosProjetoRequest, EtapaDoChecklist, Projeto } from '../types/projeto';
 import { api } from './cliente';
 
 const PROJETOS_ENDPOINT = '/api/projetos';
 const CHECKLIST_ENDPOINT = '/api/checklist';
 
-/** Projeto mais recente do cliente (a API já ordena do mais novo), ou null se ele ainda não tem. */
-export async function buscarProjetoDoCliente(clienteId: string): Promise<Projeto | null> {
+/** Projetos do cliente, do mais novo para o mais antigo. Todo cliente nasce com um projeto no cadastro. */
+export async function listarProjetosDoCliente(clienteId: string): Promise<Projeto[]> {
   const { data } = await api.get<Projeto[]>(PROJETOS_ENDPOINT, { params: { clienteId } });
-  return data[0] ?? null;
+  return data;
 }
 
-/** Todas as etapas do projeto, com os itens já criados e as sub-etapas de cada uma. */
+/** Novo projeto do cliente; a API já cria o checklist de todas as etapas. Nome repetido no cliente dá 400. */
+export async function criarProjeto(clienteId: string, dados: DadosProjetoRequest): Promise<Projeto> {
+  const { data } = await api.post<Projeto>(PROJETOS_ENDPOINT, { clienteId, ...dados });
+  return data;
+}
+
+/** Nome, endereço da obra e responsável. Nome vazio ou repetido entre os projetos do cliente dá 400. */
+export async function atualizarProjeto(projetoId: string, dados: DadosProjetoRequest): Promise<Projeto> {
+  const { data } = await api.put<Projeto>(`${PROJETOS_ENDPOINT}/${projetoId}`, dados);
+  return data;
+}
+
+/** Todas as etapas do projeto, cada uma já com os seus itens (o checklist completo é criado junto com o projeto). */
 export async function listarChecklistCompleta(projetoId: string): Promise<EtapaDoChecklist[]> {
   const { data } = await api.get<EtapaDoChecklist[]>(`${PROJETOS_ENDPOINT}/${projetoId}/checklist/completa`);
   return data;
@@ -32,7 +44,23 @@ export async function avancarEtapa(projetoId: string): Promise<Projeto> {
   return data;
 }
 
-/** Item avulso em uma etapa já alcançada pelo projeto (a atual ou uma anterior). */
+/** Link inválido (sem https://) dá 400. */
+export async function definirLinkDrive(projetoId: string, linkDrive: string): Promise<Projeto> {
+  const { data } = await api.put<Projeto>(`${PROJETOS_ENDPOINT}/${projetoId}/link-drive`, { linkDrive });
+  return data;
+}
+
+export async function removerLinkDrive(projetoId: string): Promise<Projeto> {
+  const { data } = await api.delete<Projeto>(`${PROJETOS_ENDPOINT}/${projetoId}/link-drive`);
+  return data;
+}
+
+/** Exclui o projeto com o checklist e as entregas. O único projeto do cliente não pode ser excluído (400). */
+export async function excluirProjeto(projetoId: string): Promise<void> {
+  await api.delete(`${PROJETOS_ENDPOINT}/${projetoId}`);
+}
+
+/** Item personalizado do cliente, em qualquer etapa do projeto. */
 export async function adicionarItem(projetoId: string, etapaId: string, descricao: string): Promise<void> {
   await api.post(`${PROJETOS_ENDPOINT}/${projetoId}/checklist`, { descricao, subEtapaId: null, etapaId });
 }
