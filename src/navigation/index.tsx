@@ -5,7 +5,7 @@ import { Aba, BarraNavegacaoInferior } from '../components/BarraNavegacaoInferio
 import TelaCadastroCliente from '../screens/TelaCadastroCliente';
 import TelaChecklist from '../screens/TelaChecklist';
 import TelaClientes from '../screens/TelaClientes';
-// import TelaConcluidos from '../screens/TelaConcluidos';
+import TelaConcluidos from '../screens/TelaConcluidos';
 import TelaExclusaoFuncionario from '../screens/TelaExclusaoFuncionario';
 import TelaFormularioFuncionario from '../screens/TelaFormularioFuncionario';
 import TelaFormularioProjeto from '../screens/TelaFormularioProjeto';
@@ -26,7 +26,7 @@ function Abas() {
           abaAtiva={state.routeNames[state.index] as Aba}
           onTrocarAba={(aba) => {
             const rota = state.routes.find((r) => r.name === aba);
-            if (!rota) return; // aba ainda não registrada (ex.: Concluídos)
+            if (!rota) return;
 
             // Avisa a tela do toque, como a barra padrão faz (a TelaClientes usa para recarregar).
             navigation.emit({ type: 'tabPress', target: rota.key, canPreventDefault: true });
@@ -37,7 +37,7 @@ function Abas() {
     >
       <Tab.Screen name="Funcionarios" component={TelaFuncionarios} />
       <Tab.Screen name="Clientes" component={TelaClientes} />
-      {/* <Tab.Screen name="Concluidos" component={TelaConcluidos} /> */}
+      <Tab.Screen name="Concluidos" component={TelaConcluidos} />
     </Tab.Navigator>
   );
 }
