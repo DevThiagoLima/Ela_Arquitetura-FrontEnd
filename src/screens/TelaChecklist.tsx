@@ -12,15 +12,18 @@ import {
   adicionarItem,
   avancarEtapa,
   concluirItem,
+  concluirProjeto,
   definirLinkDrive,
   excluirProjeto,
   listarChecklistCompleta,
   listarProjetosDoCliente,
   reabrirItem,
+  reabrirProjeto,
   removerItem,
   removerLinkDrive,
 } from '../api/servicoProjetos';
 import { BarraNavegacaoInferior } from '../components/BarraNavegacaoInferior';
+import { BotaoAcao } from '../components/BotaoAcao';
 import { CaixaConfirmacao } from '../components/CaixaConfirmacao';
 import { CampoLinkDrive } from '../components/CampoLinkDrive';
 import { CabecalhoTela } from '../components/CabecalhoTela';
@@ -32,6 +35,7 @@ import type { Cliente } from '../types/cliente';
 import type { ChecklistItem, EtapaDoChecklist, Projeto } from '../types/projeto';
 import { descreverStatusProjeto, formatarTelefone } from '../utils/formatacao';
 import { Scale, useResponsive } from '../utils/responsividade';
+import { entregarPeloWhatsApp } from '../utils/whatsapp';
 
 type Navegacao = NativeStackNavigationProp<RootStackParamList>;
 type Rota = RouteProp<RootStackParamList, 'Checklist'>;
@@ -72,6 +76,9 @@ export default function TelaChecklist() {
   const [excluindoCliente, setExcluindoCliente] = useState(false);
   const [projetoParaExcluir, setProjetoParaExcluir] = useState<Projeto | null>(null);
   const [excluindoProjeto, setExcluindoProjeto] = useState(false);
+  const [alterandoStatus, setAlterandoStatus] = useState(false);
+  const [avisoAcao, setAvisoAcao] = useState<string | null>(null);
+  const [confirmandoEntrega, setConfirmandoEntrega] = useState(false);
   // Projeto na tela, para recarregar sem trocar de projeto quando a rota não pede um.
   const projetoAtualRef = useRef<string | null>(null);
   const primeiraCargaRef = useRef(true);
@@ -158,6 +165,7 @@ export default function TelaChecklist() {
     if (projetoId === projeto?.id) return;
     setNovosItens({});
     setErroAcao(null);
+    setAvisoAcao(null);
     navigation.setParams({ projetoId });
   };
 
@@ -172,6 +180,56 @@ export default function TelaChecklist() {
     if (!projeto) return;
     await removerLinkDrive(projeto.id);
     await carregarChecklist(false);
+  };
+
+  // Com todos os projetos do cliente concluídos, o card vai para a aba Concluídos; senão o cliente
+  // continua em Clientes até o último projeto ser concluído.
+  const concluirProjetoAtual = async () => {
+    if (!projeto || alterandoStatus) return;
+
+    setErroAcao(null);
+    setAvisoAcao(null);
+    setAlterandoStatus(true);
+    try {
+      await concluirProjeto(projeto.id);
+      const todosConcluidos = projetos.every((p) => p.id === projeto.id || p.status === 'Concluido');
+      if (todosConcluidos) {
+        navigation.popTo('Abas', { screen: 'Concluidos' });
+        return;
+      }
+      await carregarChecklist(false);
+      setAvisoAcao('Projeto concluído! Você já pode entregá-lo ao cliente. O card vai para Concluídos quando todos os projetos dele forem concluídos.');
+    } catch (e) {
+      setErroAcao(getCadastroErrorMessage(e));
+    } finally {
+      setAlterandoStatus(false);
+    }
+  };
+
+  const reabrirProjetoAtual = async () => {
+    if (!projeto || alterandoStatus) return;
+
+    setErroAcao(null);
+    setAvisoAcao(null);
+    setAlterandoStatus(true);
+    try {
+      await reabrirProjeto(projeto.id);
+      await carregarChecklist(false);
+    } catch (e) {
+      setErroAcao(getCadastroErrorMessage(e));
+    } finally {
+      setAlterandoStatus(false);
+    }
+  };
+
+  // Projeto concluído pode ser entregue mesmo com outro projeto do cliente em andamento.
+  const entregarProjetoAtual = () => {
+    setConfirmandoEntrega(false);
+    if (!cliente || !projeto?.linkDrive) return;
+    setErroAcao(null);
+    entregarPeloWhatsApp(cliente, { id: projeto.id, linkDrive: projeto.linkDrive }).catch(() =>
+      setErroAcao('Não foi possível abrir o WhatsApp.'),
+    );
   };
 
   // Excluindo o projeto que está na tela, o card passa para o mais recente em andamento.
@@ -340,6 +398,30 @@ export default function TelaChecklist() {
           />
         ) : null}
 
+        {/* Concluir fica logo abaixo do Link do Drive (Figma); projeto concluído pode ser reaberto. */}
+        {linkDrive && projeto ? (
+          <BotaoAcao
+            titulo={editavel ? 'Concluir Projeto' : 'Reabrir Projeto'}
+            onPress={editavel ? concluirProjetoAtual : reabrirProjetoAtual}
+            carregando={alterandoStatus}
+            style={styles.botaoStatus}
+          />
+        ) : null}
+
+        {linkDrive && projeto && !editavel ? (
+          <BotaoAcao
+            titulo="Entregar Projeto"
+            cor={colors.success}
+            onPress={() => {
+              setErroAcao(null);
+              if (projeto.linkDrive) setConfirmandoEntrega(true);
+              else setErroAcao('Este projeto está sem link do Drive. Reabra o projeto para inserir o link.');
+            }}
+            desabilitado={alterandoStatus}
+            style={[styles.botaoStatus, styles.botaoEntregar]}
+          />
+        ) : null}
+
         {editavel && !linkDrive ? (
           <View style={styles.item}>
             {renderCaixa(false)}
@@ -431,6 +513,12 @@ export default function TelaChecklist() {
           </Text>
         )}
 
+        {avisoAcao ? (
+          <Text style={[styles.semProjeto, styles.avisoSucesso]} accessibilityLiveRegion="polite">
+            {avisoAcao}
+          </Text>
+        ) : null}
+
         {erroAcao ? (
           <Text style={[styles.semProjeto, styles.avisoErro]} accessibilityLiveRegion="polite">
             {erroAcao}
@@ -484,6 +572,16 @@ export default function TelaChecklist() {
         carregando={excluindoProjeto}
         onConfirmar={confirmarExclusaoProjeto}
         onCancelar={() => setProjetoParaExcluir(null)}
+      />
+
+      <CaixaConfirmacao
+        visivel={confirmandoEntrega}
+        titulo="Entregar Projeto?"
+        textoConfirmar="Entregar"
+        textoCancelar="CANCELAR"
+        corConfirmar={colors.success}
+        onConfirmar={entregarProjetoAtual}
+        onCancelar={() => setConfirmandoEntrega(false)}
       />
 
       <CaixaConfirmacao
@@ -628,6 +726,19 @@ const createStyles = (s: Scale, safeTop: number) =>
     },
     pressed: {
       opacity: 0.6,
+    },
+    botaoStatus: {
+      alignSelf: 'center',
+      width: s(190),
+      marginTop: s(18),
+      marginBottom: s(6),
+    },
+    botaoEntregar: {
+      marginTop: s(4),
+    },
+    avisoSucesso: {
+      marginTop: s(8),
+      opacity: 1,
     },
     caixaCarregando: {
       width: s(22),

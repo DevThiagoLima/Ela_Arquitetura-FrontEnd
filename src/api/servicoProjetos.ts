@@ -55,6 +55,26 @@ export async function removerLinkDrive(projetoId: string): Promise<Projeto> {
   return data;
 }
 
+/**
+ * Projeto vai para "Concluído". A API recusa (400) se o checklist ainda não chegou na etapa final
+ * ou se falta o link do Drive. O cliente só vai para a aba Concluídos com todos os projetos concluídos.
+ */
+export async function concluirProjeto(projetoId: string): Promise<Projeto> {
+  const { data } = await api.patch<Projeto>(`${PROJETOS_ENDPOINT}/${projetoId}/status`, { status: 'Concluido' });
+  return data;
+}
+
+/** Volta para "Em andamento"; o cliente volta para a aba Clientes. */
+export async function reabrirProjeto(projetoId: string): Promise<Projeto> {
+  const { data } = await api.patch<Projeto>(`${PROJETOS_ENDPOINT}/${projetoId}/status`, { status: 'EmAndamento' });
+  return data;
+}
+
+/** Guarda no histórico que o projeto foi entregue ao cliente pelo WhatsApp. */
+export async function registrarEntrega(projetoId: string, linkDrive: string): Promise<void> {
+  await api.post(`${PROJETOS_ENDPOINT}/${projetoId}/entrega`, { linkDrive, notificarWhatsApp: true });
+}
+
 /** Exclui o projeto com o checklist e as entregas. O único projeto do cliente não pode ser excluído (400). */
 export async function excluirProjeto(projetoId: string): Promise<void> {
   await api.delete(`${PROJETOS_ENDPOINT}/${projetoId}`);

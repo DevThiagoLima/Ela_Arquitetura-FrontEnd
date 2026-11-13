@@ -1,11 +1,20 @@
 import { isAxiosError } from 'axios';
 
-import type { AtualizarClienteRequest, CadastroClienteRequest, Cliente } from '../types/cliente';
+import type { AtualizarClienteRequest, CadastroClienteRequest, Cliente, ClienteConcluido } from '../types/cliente';
 import { api } from './cliente';
 
 const CLIENTES_ENDPOINT = '/api/clientes';
 
-/** Sem termo, traz todos; com termo, a API filtra por nome, e-mail ou telefone. */
+/** Clientes com todos os projetos concluídos (aba Concluídos), com os projetos de cada um. */
+export async function listarClientesConcluidos(): Promise<ClienteConcluido[]> {
+  const { data } = await api.get<ClienteConcluido[]>(`${CLIENTES_ENDPOINT}/concluidos`);
+  return data;
+}
+
+/**
+ * Clientes com algum projeto em andamento. Sem termo, traz todos; com termo, a API filtra
+ * por nome, e-mail ou telefone. Quem tem todos os projetos concluídos fica em listarClientesConcluidos.
+ */
 export async function listarClientes(busca?: string): Promise<Cliente[]> {
   const { data } = await api.get<Cliente[]>(CLIENTES_ENDPOINT, {
     params: busca ? { busca } : undefined,
