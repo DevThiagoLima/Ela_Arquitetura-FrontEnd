@@ -110,7 +110,7 @@ export default function TelaCadastroCliente() {
   return (
     <View style={styles.tela}>
       <View style={styles.topo}>
-        <CabecalhoTela titulo={editando ? 'Edição - Cliente' : 'Cadastro'} />
+        <CabecalhoTela titulo={editando ? 'Edição - Cliente' : 'Cadastro - Cliente'} />
       </View>
 
       <KeyboardAvoidingView
