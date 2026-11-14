@@ -24,7 +24,7 @@ import { Scale, useResponsive } from '../utils/responsividade';
 const logo = require('../../assets/logo.png');
 
 type Props = {
-  /** Chamado quando o login dá certo. Aqui entra a navegação. */
+  /** Chamado quando o login dá certo; o App guarda a sessão e abre a navegação. */
   onLoginSuccess?: (data: LoginResponse) => void;
 };
 
@@ -39,25 +39,25 @@ export default function TelaLogin({ onLoginSuccess }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async () => {
-  if (loading) return;
+    if (loading) return;
 
-  const trimmedEmail = email.trim();
-  if (!trimmedEmail || !password) {
-    setError('Preencha o e-mail e a senha.');
-    return;
-  }
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password) {
+      setError('Preencha o e-mail e a senha.');
+      return;
+    }
 
-  setError(null);
-  setLoading(true);
-  try {
-    const data = await login({ email: trimmedEmail, senha: password }); // ← alterada
-    onLoginSuccess?.(data);
-  } catch (e) {
-    setError(getLoginErrorMessage(e));
-  } finally {
-    setLoading(false);
-  }
-};
+    setError(null);
+    setLoading(true);
+    try {
+      const data = await login({ email: trimmedEmail, senha: password });
+      onLoginSuccess?.(data);
+    } catch (e) {
+      setError(getLoginErrorMessage(e));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -79,7 +79,7 @@ export default function TelaLogin({ onLoginSuccess }: Props) {
             />
 
             <Text style={styles.label} maxFontSizeMultiplier={1.2}>
-              Usuário
+              E-mail
             </Text>
             <CampoTextoComIcone
               icon="person-outline"
