@@ -121,6 +121,32 @@ Em seguida, escaneie o QR Code com o Expo Go ou pressione `a` (Android) / `i` (i
 
 > Para o funcionamento completo, é necessário que a API esteja em execução e configurada no app.
 
+Crie um arquivo `.env` na raiz (ele não é versionado) com o endereço da API:
+
+```bash
+EXPO_PUBLIC_API_URL=http://<ip-da-maquina>:5164
+```
+
+### Gerar o APK para o celular do escritório
+
+O app não é publicado em loja: é instalado direto, por APK, no celular Android do escritório. O APK é gerado pelo [EAS Build](https://docs.expo.dev/build/introduction/) (perfil `production` do `eas.json`).
+
+O `.env` **não vai para o build na nuvem**. Cadastre a URL da API uma única vez nas variáveis do EAS (com **HTTPS**: o Android não aceita HTTP no APK):
+
+```bash
+npm install -g eas-cli
+eas login
+eas env:create --environment production --name EXPO_PUBLIC_API_URL --value https://<sua-api> --visibility plaintext
+```
+
+Para gerar o APK:
+
+```bash
+eas build --platform android
+```
+
+Ao final, o EAS mostra um link e um QR Code: abra no celular, baixe e instale (o Android pede para permitir a instalação de "fontes desconhecidas"). Para atualizar, gere um APK novo e instale por cima: os dados e o login são mantidos.
+
 ## Cronograma
 
 | Etapa | Período |
