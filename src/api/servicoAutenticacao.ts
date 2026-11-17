@@ -1,7 +1,7 @@
 import { isAxiosError } from 'axios';
 
 import type { LoginRequest, LoginResponse } from '../types/autenticacao';
-import { api } from './cliente';
+import { API_URL, api } from './cliente';
 
 export async function login(payload: LoginRequest): Promise<LoginResponse> {
   const { data } = await api.post<LoginResponse>('/api/auth/login', payload);
@@ -14,6 +14,9 @@ export async function logout(refreshToken: string): Promise<void> {
 }
 
 export function getLoginErrorMessage(error: unknown): string {
+  if (!API_URL) {
+    return 'O app foi gerado sem o endereço do servidor (EXPO_PUBLIC_API_URL). Gere o app novamente.';
+  }
   if (isAxiosError(error)) {
     if (error.response?.status === 401) {
       return 'E-mail ou senha incorretos.';

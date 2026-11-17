@@ -2,8 +2,14 @@ import axios, { InternalAxiosRequestConfig, isAxiosError } from 'axios';
 
 import type { RefreshResponse, Sessao } from '../types/autenticacao';
 
+/**
+ * Endereço da API, embutido no app na hora do build. No build do EAS ele vem das variáveis do EAS
+ * (o .env não vai para a nuvem); se faltar, o app avisa no login em vez de culpar a internet.
+ */
+export const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
 const configuracaoBase = {
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: API_URL,
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 };

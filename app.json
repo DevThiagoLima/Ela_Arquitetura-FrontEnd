@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ElaArqApp",
+    "name": "Éla Arquitetura",
     "slug": "ElaArqApp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,10 +10,10 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "br.com.elaarquitetura.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#DFC6AF",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
